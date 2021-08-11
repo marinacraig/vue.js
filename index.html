@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Shopping List App</title>
+  <link rel="stylesheet" href="main.css">
+
+  <!-- https://vueschool.io/courses/vuejs-3-fundamentals -->
+</head>
+
+<body>
+  <div id="shopping-list">
+    <div class="header">
+      <!-- ternaries can be added eg. {{header ? header : 'welcome'}} 
+        but the or operator is shorter (see below) -->
+      <h1>{{ header.toLocaleUpperCase() || 'Welcome' }}</h1>
+      <button v-if="editing" @click="doEdit(false)" class="btn btn-cancel">Cancel</button>
+      <button v-else @click="doEdit(true)" class="btn btn-primry">Add Item</button>
+    </div>
+    
+    <!-- create a form with class="add-item-form"-->
+    <div v-if="editing" class="add-item-form">
+      <!-- v-model to keep it sync with thing in ""; if real-time updates are not welcome use 
+        v-model.lazy; convert to a number: v-model.number; remove white spaces: v-model.trim
+
+        add something on key up of enter:
+        <input v-on:keyup.enter="items.push({id:items.length + 1, label: newItem})" 
+        type="text" v-model="newItem" placeholder = "Add an Item">
+        - shorthand of v-on is @
+        - items.push({id:items.length + 1, label: newItem}) can be extracted into a method
+      -->
+      <input 
+        @keyup.enter="saveItem" 
+        type="text" v-model="newItem" placeholder = "Add an Item">
+      <label>
+        <!-- use v-model to bind "newItemHighPriority" and allow user to select them possible to pass 
+        a value  -> makes it selectable -->
+        <input type="checkbox" v-model="newItemHighPriority">
+        High Priority
+      </label>
+      <!-- the class="btn btn-primay" is used for eventListeners 
+        alternative: v-on:click="items.push({id:items.length + 1, label: newItem})"
+        will add items directly to the list
+      -->
+      <button 
+        @click="saveItem" 
+        class="btn btn-primary">
+        Save Item
+      </button>
+    </div>
+    <p v-if="items.length === 0">Nice job! You've bought all your items!</p>
+    <ul>
+      <!-- or to start with:
+      <li v-for="item in items">{{item}}</li>
+
+      highly recommended to add a key - id  
+      <li v-for="(item, index) in items" :key="item.id">{{index}}{{item.label}}</li>
+
+      with object: 
+      <li v-for="(item, key) in items" :key="item.id">{{key}}{{item.label}}</li>
+
+      v-model makes it easy to insert data into a form input -> if user changes it etc the data 
+      stays sync  = 2 way data binding  
+
+      -->
+      <li 
+        v-for="item in reversedItems" 
+        @click="togglePurchased(item)"
+        :key="item.id"
+        class="static-class"
+        :class="{strikeout: item.purchased, priority: item.highPriority}"
+      >
+        {{item.label}}
+      </li>
+    </ul>
+  </div>
+
+  <!-- use devtools (6 or above) 
+    $vm.data.name allows us to access from the console 
+    shoppingLlistApp.items.push({id: 5, label:"new"}) will show a new item  
+    shoppingLlistApp.items.pop() will remove last item
+  -->
+
+  <!-- include CDN -->
+  <script src="https://unpkg.com/vue@3"></script>
+  <script>
+    // create the app (everything within it) except pushing content into div with ".mount('#idOfDiv') "
+    const shoppingListApp = Vue.createApp({
+      data() {
+        return {
+          // use double moustache in HTML "{{header}}"
+          header: 'Shopping List App',
+          editing:false,
+          // used with v-model
+          // create input to add to the newItem & create input & corresponding v-model in HTML -> 
+          // can be modified after v-model
+          newItem: '',
+          // allow user to select if the item is a high priority item; booleans best for checkboxes 
+          // good for toggling, privacy, ..   
+          newItemHighPriority: false,
+          items:[
+            {id: 1, label:'10 party hats', purchased: true, highPriority: false},
+            {id: 2, label:'2 board games', purchased: true, highPriority: false},
+            {id: 3, label:'20 cups', purchased: false, highPriority: true},
+          ]
+          // could also be done with an object
+        }
+      },
+      computed:{
+        reversedItems(){
+          return [...this.items].reverse()
+        }
+      },
+      methods:{
+        saveItem(){
+          this.items.push({
+            id:this.items.length + 1, 
+            label: this.newItem,
+            highPriority: this.newItemHighPriority
+          })
+          this.newItem = ""
+          this.newItemHighPriority = false
+        },
+        doEdit(editing){
+          this.editing = editing
+          this.newItem = ""
+          this.newItemHighPriority = false
+        },
+        togglePurchased(item){
+          item.purchased = !item.purchased
+        }
+      }
+    }).mount('#shopping-list')
+  </script>
+
+</body>
+
+</html>
