@@ -28,7 +28,7 @@
         <input v-on:keyup.enter="items.push({id:items.length + 1, label: newItem})" 
         type="text" v-model="newItem" placeholder = "Add an Item">
         - shorthand of v-on is @
-        - items.push({id:items.length + 1, label: newItem}) can be extracted into a method
+        - items.push({id:items.length + 1, label: newItem}) can be extracted into a methodgit git 
       -->
       <input 
         @keyup.enter="saveItem" 
