@@ -15,6 +15,7 @@
       <!-- ternaries can be added eg. {{header ? header : 'welcome'}} 
         but the or operator is shorter (see below) -->
       <h1>{{ header.toLocaleUpperCase() || 'Welcome' }}</h1>
+      <!--if true show, else not, use the class to toggle editing-->
       <button v-if="editing" @click="doEdit(false)" class="btn btn-cancel">Cancel</button>
       <button v-else @click="doEdit(true)" class="btn btn-primry">Add Item</button>
     </div>
@@ -28,7 +29,12 @@
         <input v-on:keyup.enter="items.push({id:items.length + 1, label: newItem})" 
         type="text" v-model="newItem" placeholder = "Add an Item">
         - shorthand of v-on is @
-        - items.push({id:items.length + 1, label: newItem}) can be extracted into a methodgit git 
+        - items.push({id:items.length + 1, label: newItem}) can be extracted into a method
+
+        computed properties: e.g. maximum length of a string / show how many characters are left 
+        this line could be an additional attribute for the input tag
+        <p class="counter">{{characterCount}}/200</p>
+        this will be calculated in "computed"
       -->
       <input 
         @keyup.enter="saveItem" 
@@ -39,9 +45,15 @@
         <input type="checkbox" v-model="newItemHighPriority">
         High Priority
       </label>
-      <!-- the class="btn btn-primay" is used for eventListeners 
+      <!-- 
+        the class="btn btn-primay" is used for eventListeners 
         alternative: v-on:click="items.push({id:items.length + 1, label: newItem})"
         will add items directly to the list
+
+        better: use methods (make code easier -> better understanding)
+
+        only save an item if non-empty input: 
+        v-bind:disabled="newItem.length === 0" -> can be shortened to :disabled="newItem.length === 0"
       -->
       <button 
         @click="saveItem" 
@@ -49,6 +61,9 @@
         Save Item
       </button>
     </div>
+    <!-- add dynamic link (add link to input field, then click on Dynamic Link and you will go to the page):  
+    <a v-bind:href="newItem">Dynamic Link </a> -->
+    <!-- conditional statement: only show this if the condition is fulfilled -->
     <p v-if="items.length === 0">Nice job! You've bought all your items!</p>
     <ul>
       <!-- or to start with:
@@ -62,6 +77,16 @@
 
       v-model makes it easy to insert data into a form input -> if user changes it etc the data 
       stays sync  = 2 way data binding  
+
+      classes: used with :class 
+      two options: array or object
+      object: easier to understand / cleaner
+      array: a bit more verbose, allows to add several classes e.g.:
+      :class="[
+        item.purchased ? 'strikeout text-gray' : 'underlined', 
+        item.highPriority ? 'priority' : '', 
+        'static-class-in-array'
+      ]"
 
       -->
       <li 
@@ -78,8 +103,8 @@
 
   <!-- use devtools (6 or above) 
     $vm.data.name allows us to access from the console 
-    shoppingLlistApp.items.push({id: 5, label:"new"}) will show a new item  
-    shoppingLlistApp.items.pop() will remove last item
+    shoppingListApp.items.push({id: 5, label:"new"}) will show a new item  
+    shoppingListApp.items.pop() will remove last item
   -->
 
   <!-- include CDN -->
@@ -99,6 +124,7 @@
           // allow user to select if the item is a high priority item; booleans best for checkboxes 
           // good for toggling, privacy, ..   
           newItemHighPriority: false,
+          // ad a class (either array or object -> easier)
           items:[
             {id: 1, label:'10 party hats', purchased: true, highPriority: false},
             {id: 2, label:'2 board games', purchased: true, highPriority: false},
@@ -107,11 +133,19 @@
           // could also be done with an object
         }
       },
+      // computed: can re-render itself, used for representation topics
       computed:{
+        // e.g. for characters left:
+        // characterCount(){
+        //   return this.newItem.length
+        // },
         reversedItems(){
+          // important to return a value - reverse should not change the initial list
           return [...this.items].reverse()
         }
       },
+      // methods: used if data changes are performed
+      // eventListeners -> add items (use this for the incoming data)
       methods:{
         saveItem(){
           this.items.push({
@@ -119,9 +153,11 @@
             label: this.newItem,
             highPriority: this.newItemHighPriority
           })
+          // reset values for the next item that will be added
           this.newItem = ""
           this.newItemHighPriority = false
         },
+        // for toggling buttons
         doEdit(editing){
           this.editing = editing
           this.newItem = ""
